@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Chord } from 'tonality-map'
+import { useWindowSize } from '@react-hook/window-size'
 
 const calcCoordinates =
   (px: number, py: number, rad: number) => (i: number) => {
@@ -14,7 +15,7 @@ const mainCirclePoints = (px = 0, py = 0, radius = 5) => {
   let circulos = []
   for (let i = 0; i < 12; i++) {
     let { x, y } = calcCoordinates(px, py, radius)(i)
-    let { x: xtext, y: ytext } = calcCoordinates(px, py, radius + 5)(i)
+    let { x: xtext, y: ytext } = calcCoordinates(px, py, radius)(i)
     circulos.push({ x, y, xtext, ytext })
   }
   return circulos
@@ -42,11 +43,15 @@ type AppProps = {
   radius?: number
 } /* use `interface` if exporting so that consumers can extend */
 
-const Circle = ({ chord, px = 100, py = 100, radius = 50 }: AppProps) => {
+const Circle = ({ chord }: AppProps) => {
   // const { px = 100, py = 100, radius = 50 } = props
+
+  const [width, height] = useWindowSize()
+  const px = width / 2
+  const py = height / 2
+  const radius = Math.min(height, width) / 2
   const [dataset] = useState(mainCirclePoints(px, py, radius))
   let chordNotes = chord.notes
-  let chordStr = chord.chordName()
 
   let notesCircle = chordNotes.map((note) => {
     let { x, y } = calcCoordinates(px, py, radius)(note)
@@ -73,7 +78,7 @@ const Circle = ({ chord, px = 100, py = 100, radius = 50 }: AppProps) => {
   })
 
   return (
-    <svg viewBox='0 0 500 500'>
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
       <circle
         key={'circle_main'}
         cx={px}
@@ -81,7 +86,7 @@ const Circle = ({ chord, px = 100, py = 100, radius = 50 }: AppProps) => {
         r={radius}
         fill='none'
         stroke='black'
-        strokeWidth='1'
+        strokeWidth='8'
       />
       {lines.map(({ x1, y1, x2, y2, color }, i) => (
         <line
@@ -91,19 +96,12 @@ const Circle = ({ chord, px = 100, py = 100, radius = 50 }: AppProps) => {
           x2={x2}
           y2={y2}
           stroke={color}
-          strokeWidth={0.8}
+          strokeWidth={10}
         />
       ))}
-      {dataset.map(({ x, y }, i) => (
-        <circle key={'circle' + i} cx={x} cy={y} r='3' />
-      ))}
       {notesCircle.map(({ x, y }, i) => (
-        <circle key={'circle_notes' + i} cx={x} cy={y} r={4} stroke='blue' />
+        <circle key={'circle_notes' + i} cx={x} cy={y} r={16} stroke='blue' />
       ))}
-
-      <text x={px} y={py + radius * 1.4} textAnchor='middle'>
-        {chordStr}
-      </text>
     </svg>
   )
 }

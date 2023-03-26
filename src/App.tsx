@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Chord, UniversoTonal } from 'tonality-map'
-import reactLogo from './assets/react.svg'
 import { useMIDI, useMIDINote } from '@react-midi/hooks'
 import AppView from './AppView'
 
-const options = ['Italy', 'Spain', 'Greece']
 function App() {
   const [notes, setNotes] = useState([])
   const { inputs } = useMIDI() // Initially returns [[], []]
